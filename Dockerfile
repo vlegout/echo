@@ -1,6 +1,14 @@
-FROM golang:latest
+FROM golang:latest as builder
 
 WORKDIR /go/src/app
 COPY . .
 
-CMD ["go", "run", "main.go"]
+RUN CGO_ENABLED=0 go build -a -o main .
+
+
+FROM alpine:latest
+
+WORKDIR /root/
+COPY --from=builder /go/src/app/main .
+
+CMD ["/root/main"]
